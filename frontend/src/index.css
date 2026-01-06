@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-cyan: #00e5ff;
+  --color-brand-brown: #2d1b14;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', serif;
+}
