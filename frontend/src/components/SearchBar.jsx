@@ -3,7 +3,10 @@ const SearchBar = ({ value, onChange, onSearch, language, setLanguage }) => {
     const handleChange = (e) => {
         setLanguage(e.target.value);
     };
+    const scrolltodown = () => {
 
+        window.scrollTo({ bottom: 0, behavior: 'smooth' })
+    }
     return (
         <>
             <div className="sm:flex md:flex sm:flex-row md:flex-row items-center flex flex-col sm:justify-between md:justify-center gap-2 mb-5">
@@ -13,11 +16,16 @@ const SearchBar = ({ value, onChange, onSearch, language, setLanguage }) => {
                     placeholder="enter ingredients"
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && onSearch()}
+                    onKeyDown={(e) => { e.key === 'Enter' && onSearch() }}
+
                 />
 
                 <button
-                    onClick={() => { onSearch }}
+                    onClick={() => {
+                        onSearch(); scrolltodown(
+
+                        )
+                    }}
                     className="bg-brand-cyan text-white px-8 py-2 rounded-full text-xl font-medium hover:opacity-90 transition-opacity cursor-pointer"
                 >
                     search

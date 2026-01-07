@@ -71,7 +71,7 @@ function App() {
       setRecipe(response.data.recipe);
       window.scrollTo({ bottom: 0, behavior: 'smooth' });
     } catch (error) {
-      console.error('Error:', error);
+
       const errorMsg =
         error.response?.data?.error ||
         "Error connecting to server. Please ensure backend is running.";
