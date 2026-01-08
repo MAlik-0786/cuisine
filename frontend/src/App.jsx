@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import Navbar from './components/Navbar';
 import Header from './components/Header';
@@ -42,16 +42,22 @@ function App() {
   const [language, setLanguage] = useState("English");
   const recipeRef = useRef(null);
 
-  const toggleIngredient = (ing) => {
-    if (selectedIngredients.includes(ing)) {
-      setSelectedIngredients(selectedIngredients.filter(item => item !== ing));
-    } else {
-      setSelectedIngredients([...selectedIngredients, ing]);
-      setInputValue([...selectedIngredients, ing]);
-    }
-  };
+  const toggleIngredient = useCallback((ing) => {
+    setSelectedIngredients(prevSelected => {
+      const isSelected = prevSelected.includes(ing);
+      if (isSelected) {
+        return prevSelected.filter(item => item !== ing);
+      } else {
+        const newSelection = [...prevSelected, ing];
+        // Replicating original behavior: set inputValue to the array
+        // This will implicitly convert the array to a string for the input field
+        setInputValue(newSelection);
+        return newSelection;
+      }
+    });
+  }, []); // setInputValue is a stable setter, so no need to include it in dependencies
 
-  const generateRecipe = async () => {
+  const generateRecipe = useCallback(async () => {
     if (selectedIngredients.length === 0 && !inputValue) {
       setRecipe("⚠️ Please enter ingredients or select some.");
       return;
@@ -84,7 +90,7 @@ function App() {
 
       if (error.response) {
         // Server responded with a status code other than 2xx
-        errorMsg = error.response.data?.error || `Server Error: ${error.response.status}`;
+        errorMsg = error.response.data?.error || `Server Error: ${error.response.status} `;
       } else if (error.request) {
         // Request was made but no response received
         errorMsg = "Network Error: Could not connect to backend. Check if server is running.";
@@ -96,18 +102,20 @@ function App() {
       if (errorMsg.includes("quota") || errorMsg.includes("429")) {
         setRecipe("⚠️ API Quota exceeded! Please wait a minute and try again.");
       } else {
-        setRecipe(`Error: ${errorMsg}`);
+        setRecipe(`Error: ${errorMsg} `);
       }
     } finally {
       setLoading(false);
     }
-  };
-  const emptyRecipe = () => {
+  }, [selectedIngredients, inputValue, language]); // Dependencies for generateRecipe
+
+  const emptyRecipe = useCallback(() => {
     setRecipe('');
     setInputValue('');
     setSelectedIngredients([]);
     setLoading(false);
-  };
+  }, []); // All setters are stable, so no dependencies needed
+
   return (
     <>
       <div className="min-h-screen bg-white font-poppins px-4 py-8  max-w-7xl mx-auto flex flex-col items-center">

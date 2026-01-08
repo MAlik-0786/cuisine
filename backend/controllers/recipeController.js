@@ -4,10 +4,6 @@ export const generateRecipe = async (req, res) => {
     try {
         const { ingredients, language } = req.body;
 
-        console.log("Received generate-recipe request");
-        console.log("Ingredients:", ingredients);
-        console.log("API Key present:", !!process.env.GEMINI_API_KEY);
-
         if (!ingredients || ingredients.length === 0) {
             return res.status(400).json({ error: 'Please provide ingredients' });
         }
@@ -23,12 +19,12 @@ export const generateRecipe = async (req, res) => {
         const result = await model.generateContent(prompt);
         const response = await result.response;
 
-        console.log("Received response from Gemini");
+
 
         const recipe = response.text();
         res.json({ recipe });
     } catch (error) {
-        console.error("Error generating recipe:", error);
+
         res.status(500).json({ error: error.message || 'Failed to generate recipe output' });
     }
 };

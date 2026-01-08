@@ -1,4 +1,6 @@
-const SearchBar = ({ value, onChange, onSearch, language, setLanguage, emptyRecipe }) => {
+import { memo } from 'react';
+
+const SearchBar = memo(({ value, onChange, onSearch, language, setLanguage, emptyRecipe }) => {
 
     const handleChange = (e) => {
         setLanguage(e.target.value);
@@ -54,6 +56,6 @@ const SearchBar = ({ value, onChange, onSearch, language, setLanguage, emptyReci
             </div>
         </>
     );
-};
+});
 
 export default SearchBar;

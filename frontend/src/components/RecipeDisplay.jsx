@@ -1,4 +1,6 @@
-const RecipeDisplay = ({ recipe, loading }) => {
+import { memo } from 'react';
+
+const RecipeDisplay = memo(({ recipe, loading }) => {
     if (loading) {
         return (
             <div className="text-center mt-10">
@@ -17,6 +19,6 @@ const RecipeDisplay = ({ recipe, loading }) => {
             </div>
         </div>
     );
-};
+});
 
 export default RecipeDisplay;

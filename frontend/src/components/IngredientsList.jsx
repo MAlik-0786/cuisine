@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 
-const IngredientsList = ({ ingredients, selectedIngredients, onToggle }) => {
+const IngredientsList = memo(({ ingredients, selectedIngredients, onToggle }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const MOBILE_LIMIT = 10;
 
@@ -44,6 +44,6 @@ const IngredientsList = ({ ingredients, selectedIngredients, onToggle }) => {
             )}
         </div>
     );
-};
+});
 
 export default IngredientsList;
