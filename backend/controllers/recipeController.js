@@ -4,6 +4,10 @@ export const generateRecipe = async (req, res) => {
     try {
         const { ingredients, language } = req.body;
 
+        console.log("Received generate-recipe request");
+        console.log("Ingredients:", ingredients);
+        console.log("API Key present:", !!process.env.GEMINI_API_KEY);
+
         if (!ingredients || ingredients.length === 0) {
             return res.status(400).json({ error: 'Please provide ingredients' });
         }
@@ -13,19 +17,18 @@ export const generateRecipe = async (req, res) => {
   Create a short step by step short process, delicious recipe using these ingredients: ${ingredients.join(', ')}. ${language}
     Please format it nicely with a Title, Instructions, and Time.  give at least 5 steps and use emojis to make it more appealing dont use any html tags and #tags and "*" make headings bold .`;
 
-        // Using the new @google/genai syntax requested by user
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-        });
+        console.log("Sending prompt to Gemini...");
 
+        const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
 
+        console.log("Received response from Gemini");
 
-        // The text is a property in the new SDK
-        const recipe = response.text;
+        const recipe = response.text();
         res.json({ recipe });
-    } catch {
-
-        res.status(500).json('Failed to generate recipe output');
+    } catch (error) {
+        console.error("Error generating recipe:", error);
+        res.status(500).json({ error: error.message || 'Failed to generate recipe output' });
     }
 };

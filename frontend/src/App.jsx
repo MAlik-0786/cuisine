@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import axios from 'axios';
 import Navbar from './components/Navbar';
 import Header from './components/Header';
@@ -40,6 +40,7 @@ function App() {
   const [recipe, setRecipe] = useState('');
   const [loading, setLoading] = useState(false);
   const [language, setLanguage] = useState("English");
+  const recipeRef = useRef(null);
 
   const toggleIngredient = (ing) => {
     if (selectedIngredients.includes(ing)) {
@@ -51,36 +52,51 @@ function App() {
   };
 
   const generateRecipe = async () => {
-    if (selectedIngredients.length === 0 && !inputValue) return;
+    if (selectedIngredients.length === 0 && !inputValue) {
+      setRecipe("⚠️ Please enter ingredients or select some.");
+      return;
+    }
     setLoading(true);
     setRecipe('');
+
+    // Scroll to the recipe section immediately when search starts
+    setTimeout(() => {
+      recipeRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
 
     try {
       const ingredientsToSent = inputValue
         ? [...selectedIngredients, inputValue]
         : selectedIngredients;
 
-      const response = await axios.post(
-        'http://localhost:3000/api/generate-recipe',
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/generate-recipe`,
         {
           ingredients: ingredientsToSent,
           language: language // ✅ SEND LANGUAGE
         }
       );
-
       setRecipe(response.data.recipe);
-      window.scrollTo({ bottom: document.body.scrollHeight, behavior: 'smooth' });
+      // window.scrollTo({ bottom: document.body.scrollHeight, behavior: 'smooth' });
     } catch (error) {
+      console.error("Full Error Object:", error);
 
-      const errorMsg =
-        error.response?.data?.error ||
-        "somthing is wrong";
+      let errorMsg = "Something went wrong";
+
+      if (error.response) {
+        // Server responded with a status code other than 2xx
+        errorMsg = error.response.data?.error || `Server Error: ${error.response.status}`;
+      } else if (error.request) {
+        // Request was made but no response received
+        errorMsg = "Network Error: Could not connect to backend. Check if server is running.";
+      } else {
+        // Something else caused the error
+        errorMsg = error.message;
+      }
 
       if (errorMsg.includes("quota") || errorMsg.includes("429")) {
-        // setRecipe("⚠️ API Quota exceeded! Please wait a minute and try again.");
-        setRecipe("⚠️ there is limit ,your limit is over");
+        setRecipe("⚠️ API Quota exceeded! Please wait a minute and try again.");
       } else {
-        setRecipe(errorMsg);
+        setRecipe(`Error: ${errorMsg}`);
       }
     } finally {
       setLoading(false);
@@ -114,7 +130,9 @@ function App() {
           inputvalue={setInputValue}
         />
 
-        <RecipeDisplay recipe={recipe} loading={loading} />
+        <div ref={recipeRef} className="w-full">
+          <RecipeDisplay recipe={recipe} loading={loading} />
+        </div>
       </div>
       <Footer />
     </>
