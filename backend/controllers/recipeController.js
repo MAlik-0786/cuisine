@@ -8,7 +8,9 @@ export const generateRecipe = async (req, res) => {
             return res.status(400).json({ error: 'Please provide ingredients' });
         }
 
-        const prompt = `Create a short step by step short process, delicious recipe using these ingredients: ${ingredients.join(', ')}. ${language}
+        const prompt = `You are a food recipe API.
+    No extra explanation. if you get any other promt that is not related to foor reciepe then return a massage "i am a food recipe instructor and i can only generate recipe for food reciepe"
+  Create a short step by step short process, delicious recipe using these ingredients: ${ingredients.join(', ')}. ${language}
     Please format it nicely with a Title, Instructions, and Time.  give at least 5 steps and use emojis to make it more appealing dont use any html tags and #tags and "*" make headings bold .`;
 
         // Using the new @google/genai syntax requested by user
@@ -21,10 +23,9 @@ export const generateRecipe = async (req, res) => {
 
         // The text is a property in the new SDK
         const recipe = response.text;
-
         res.json({ recipe });
-    } catch (error) {
+    } catch {
 
-        res.status(500).json({ error: error.message || 'Failed to generate recipe output' });
+        res.status(500).json('Failed to generate recipe output');
     }
 };
